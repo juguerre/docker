@@ -37,7 +37,15 @@ RUN curl -fL http://mirrors.jenkins-ci.org/war-stable/$JENKINS_VERSION/jenkins.w
   && echo "$JENKINS_SHA /usr/share/jenkins/jenkins.war" | sha1sum -c -
 
 ENV JENKINS_UC https://updates.jenkins-ci.org
-RUN chown -R jenkins "$JENKINS_HOME" /usr/share/jenkins/ref
+
+# from a derived Dockerfile, can use `RUN plugins.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
+COPY plugins.sh /usr/local/bin/plugins.sh
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+COPY jenkins.sh /usr/local/bin/jenkins.sh
+# COPY custom.groovy /usr/share/jenkins/ref/init.groovy.d/custom.groovy
+
+
+RUN chown -R jenkins "$JENKINS_HOME" /usr/share/jenkins/ref /usr/local/bin
 
 # for main web interface:
 EXPOSE 8080
@@ -49,8 +57,9 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
 USER jenkins
 
-COPY jenkins.sh /usr/local/bin/jenkins.sh
-ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
+RUN /usr/local/bin/plugins.sh /usr/share/jenkins/ref/plugins.txt
 
-# from a derived Dockerfile, can use `RUN plugins.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
-COPY plugins.sh /usr/local/bin/plugins.sh
+
+#ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
+
+
