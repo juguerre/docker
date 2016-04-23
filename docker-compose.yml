@@ -1,15 +1,16 @@
-jenkins_master:
-  build: .
-  environment:
-    JAVA_OPTS: "-Djava.awt.headless=true"
-  ports:
-    - "50000:50000"
-    - "8080:8080"
-  volumes_from:
-    - jenkins_volume
+version: '2'
 
-jenkins_volume:
-   image: jenkins
-   command: /bin/true
-   volumes:
-     - /var/jenkins_home
+services:
+  jenkins2:
+    #build: ./jenkins_build
+    image: jenkins
+    container_name: jenkins2
+    ports:
+      - "50000:50000"
+      - "8080:8080"
+    volumes:
+      - jenkins2_data:/var/jenkins_home
+
+volumes:
+  jenkins2_data:
+    external: true
