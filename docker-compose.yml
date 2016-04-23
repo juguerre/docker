@@ -3,7 +3,7 @@ version: '2'
 services:
   jenkins2:
     build: .
-    image: jenkins
+    image: jenkins-ext
     container_name: jenkins2
     ports:
       - "50000:50000"
