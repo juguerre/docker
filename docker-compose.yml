@@ -2,7 +2,7 @@ version: '2'
 
 services:
   jenkins2:
-    #build: ./jenkins_build
+    build: .
     image: jenkins
     container_name: jenkins2
     ports:
