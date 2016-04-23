@@ -76,7 +76,7 @@ If you are only using [SSH slaves](https://wiki.jenkins-ci.org/display/JENKINS/S
 
 # Passing JVM parameters
 
-You might need to customize the JVM running Jenkins, typically to pass system properties or tweak heap memory settings. Use JAVA_OPTS environment 
+You might need to customize the JVM running Jenkins, typically to pass system properties or tweak heap memory settings. Use JAVA_OPTS environment
 variable for this purpose :
 
 ```
@@ -133,7 +133,7 @@ docker run --name myjenkins -p 8080:8080 -p 50001:50001 --env JENKINS_SLAVE_AGEN
 
 # Installing more tools
 
-You can run your container as root - and install via apt-get, install as part of build steps via jenkins tool installers, or you can create your own Dockerfile to customise, for example: 
+You can run your container as root - and install via apt-get, install as part of build steps via jenkins tool installers, or you can create your own Dockerfile to customise, for example:
 
 ```
 FROM jenkins
@@ -143,7 +143,7 @@ RUN apt-get update && apt-get install -y ruby make more-thing-here
 USER jenkins # drop back to the regular jenkins user - good practice
 ```
 
-In such a derived image, you can customize your jenkins instance with hook scripts or additional plugins. 
+In such a derived image, you can customize your jenkins instance with hook scripts or additional plugins.
 For this purpose, use `/usr/share/jenkins/ref` as a place to define the default JENKINS_HOME content you
 wish the target installation to look like :
 
@@ -158,20 +158,22 @@ When jenkins container starts, it will check JENKINS_HOME has this reference con
 there if required. It will not override such files, so if you upgraded some plugins from UI they won't
 be reverted on next start.
 
+In case you *do* want to override, append '.override' to the name of the reference file. E.g. a file named
+`/usr/share/jenkins/ref/config.xml.override` will overwrite an existing `config.xml` file in JENKINS_HOME.
+
 Also see [JENKINS-24986](https://issues.jenkins-ci.org/browse/JENKINS-24986)
 
 For your convenience, you also can use a plain text file to define plugins to be installed
 (using core-support plugin format).
-All plugins need to be listed as there is no transitive dependency resolution.
+All plugins need to be listed in the form `pluginID:version` as there is no transitive dependency resolution.
 
 ```
-pluginID:version
 credentials:1.18
 maven-plugin:2.7.1
 ...
 ```
 
-And in derived Dockerfile just invoke the utility plugin.sh script
+And in derived Dockerfile just invoke the utility `plugins.sh` script
 
 ```
 FROM jenkins
@@ -179,12 +181,40 @@ COPY plugins.txt /usr/share/jenkins/plugins.txt
 RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 ```
 
+Here is an example to get the list of plugins from an existing server you can use the following curl command:
+
+```
+JENKINS_HOST=myhost.com:port
+curl -sSL "http://$JENKINS_HOST/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins" | perl -pe 's/.*?<shortName>([\w-]+).*?<version>([^<]+)()(<\/\w+>)+/\1 \2\n/g'|sed 's/ /:/'
+```
+
+Example Output:
+
+```
+cucumber-testresult-plugin:0.8.2
+pam-auth:1.1
+matrix-project:1.4.1
+script-security:1.13
+...
+```
 
 # Upgrading
 
 All the data needed is in the /var/jenkins_home directory - so depending on how you manage that - depends on how you upgrade. Generally - you can copy it out - and then "docker pull" the image again - and you will have the latest LTS - you can then start up with -v pointing to that data (/var/jenkins_home) and everything will be as you left it.
 
 As always - please ensure that you know how to drive docker - especially volume handling!
+
+# Building
+
+Build with the usual
+
+    docker build -t jenkins .
+
+Tests are written using [bats](https://github.com/sstephenson/bats) under the `tests` dir
+
+    bats tests
+
+Bats can be easily installed with `brew install bats` on OS X
 
 # Questions?
 
