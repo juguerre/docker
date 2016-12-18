@@ -1,9 +1,28 @@
-master:
-  build: .
-  environment:
-    JAVA_OPTS: "-Djava.awt.headless=true"
-  ports:
-    - "50000:50000"
-    - "8080:8080"
-  volumes:
-    - /var/jenkins_home
+version: '2'
+
+services:
+  jenkins:
+    build: .
+    image: jenkins_docker
+    container_name: jenkins_dock
+    networks:
+      jenkins2_net:
+        aliases:
+          - jenkins_docker
+    environment:
+      JAVA_OPTS: "-Djava.awt.headless=true"
+    ports:
+      - "50000:50000"
+      - "8080:8080"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /media/storage/dev/repos/logstash-plugin/target/logstash.hpi:/var/jenkins_home/plugins/logstash.hpi
+     
+volumes:
+  jenkins_data:
+    external: true
+
+networks:
+  jenkins2_net:
+    external: true
