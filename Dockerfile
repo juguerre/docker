@@ -23,7 +23,7 @@ RUN set -x \
 
 #my local docker group GID is 1001 so this has to be the docker group gid for jenkins in order to avoid fs
 #permissions issues
-RUN groupadd -g 1001 docker && usermod -a -G docker jenkins 
+RUN groupadd -g 998 docker && usermod -a -G docker jenkins 
 
 USER jenkins
 #COPY plugins.txt /usr/share/jenkins/plugins.txt
