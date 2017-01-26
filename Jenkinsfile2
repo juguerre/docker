@@ -1,0 +1,11 @@
+docker.image('maven:3.3.3-jdk-8').inside {
+
+	stage "SCM Stage"
+	git 'https://github.com/juguerre/docker.git'
+	
+	stage "Checking maven"
+	sh 'mvn --version'
+
+	stage "Checking Java"
+	sh 'java -version'
+}
