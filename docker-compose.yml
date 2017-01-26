@@ -3,9 +3,9 @@ version: '2'
 services:
   jenkins:
     build: .
-    image: jenkins_docker
+    image: jenkins_docker:2.0
     group_add:
-      - docker    
+      - 998    
     container_name: jenkins_dock
     networks:
       jenkins2_net:
@@ -22,9 +22,14 @@ services:
       - /development/repos/jenkins-docker/hpi:/var/jenkins_home/plugins
     
   portainer:
-    image: portainer/portainer
-    ports:
-      - 9000:9000
+    image: portainer/portainer:latest
+    container_name: portainer_jenkins
+    ports: 
+      - "9000:9000"
+    networks:
+      jenkins2_net:
+        aliases:
+          - portainer
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
