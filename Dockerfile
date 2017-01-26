@@ -23,7 +23,12 @@ RUN set -x \
 
 #my local docker group GID is 1001 so this has to be the docker group gid for jenkins in order to avoid fs
 #permissions issues
-RUN groupadd -g 998 docker && usermod -a -G docker jenkins 
+#RUN groupadd -g 998 docker && usermod -a -G docker jenkins 
+#Altertive method to pass group during container creation
+#docker run --rm -p 127.0.0.1:8080:8080 -v /var/run/docker.sock:/var/run/docker.sock --group-add=$(stat -c %g /var/run/docker.sock) jenkinsci/docker-workflow-demo
+#docker-compose:
+# group_add:
+#    - 998
 
 USER jenkins
 #COPY plugins.txt /usr/share/jenkins/plugins.txt
