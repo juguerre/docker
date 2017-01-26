@@ -4,6 +4,8 @@ services:
   jenkins:
     build: .
     image: jenkins_docker
+    group_add:
+      - docker    
     container_name: jenkins_dock
     networks:
       jenkins2_net:
@@ -18,10 +20,14 @@ services:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /development/repos/jenkins-docker/hpi:/var/jenkins_home/plugins
-    #Add host docker group to jenkins container user (needed for docker in docker)
-    group_add:
-      - ${DOCKER_HOST_GROUP_ID}
-     
+    
+  portainer:
+    image: portainer/portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   jenkins_data:
     external: true
